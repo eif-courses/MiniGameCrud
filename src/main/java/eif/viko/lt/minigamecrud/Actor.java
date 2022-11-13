@@ -98,4 +98,9 @@ public abstract class Actor {
   public void setHp(int hp) {
     this.hp = hp;
   }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }
