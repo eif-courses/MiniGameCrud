@@ -18,12 +18,13 @@ import java.util.ResourceBundle;
 
 // Work with properties file
 // https://tutoref.com/how-to-read-and-write-properties-file/
+// https://mkyong.com/java/java-properties-file-examples/
 public class GameController implements Initializable {
 
   final private static String PROPERTIES_FILE_PATH_MONK = "monk.properties";
   final private static String PROPERTIES_FILE_PATH_WARIOR = "warior.properties";
 
-  private List<String> characterProperties = List.of(PROPERTIES_FILE_PATH_MONK, PROPERTIES_FILE_PATH_WARIOR);
+  private final List<String> characterProperties = List.of(PROPERTIES_FILE_PATH_MONK, PROPERTIES_FILE_PATH_WARIOR);
 
 
   Properties properties = new Properties();
@@ -57,22 +58,16 @@ public class GameController implements Initializable {
   void increaseDextertity(ActionEvent event) {
     selectCharacter.setDextertity(selectCharacter.getDextertity() + 1);
     dextertity.setText(String.valueOf(selectCharacter.getDextertity()));
+    try (OutputStream output = new FileOutputStream(selectCharacter.getName() + ".properties")) {
 
-    if (selectCharacter.getName().contains("monk")) {
-      path = PROPERTIES_FILE_PATH_MONK;
-    } else {
-      path = PROPERTIES_FILE_PATH_WARIOR;
-    }
-    try (OutputStream outputStream = new FileOutputStream(path)) {
-
-      // set some values
+      // set the properties value
       properties.setProperty("dextertity", String.valueOf(selectCharacter.getDextertity()));
-      // store the values
-      properties.store(outputStream, null);
+      properties.store(output, null);
 
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (IOException io) {
+      io.printStackTrace();
     }
+
   }
 
   @FXML
@@ -105,19 +100,14 @@ public class GameController implements Initializable {
     selectCharacter = chnageHeroComboBox.getSelectionModel().getSelectedItem();
     profileImage.setImage(new Image(selectCharacter.getName() + ".jpg"));
 
-    if (selectCharacter.getName().contains("monk")) {
-      path = PROPERTIES_FILE_PATH_MONK;
-    } else {
-      path = PROPERTIES_FILE_PATH_WARIOR;
-    }
+    try (InputStream inputStream = new FileInputStream(selectCharacter.getName() + ".properties")) {
 
-    try (InputStream inputStream = new FileInputStream(path)) {
       properties.load(inputStream);
       String dex = properties.getProperty("dextertity");
 
-      if(path.contains("warior")) {
+      if (selectCharacter.getName().contains("warior")) {
         profileImage.setImage(new Image("warior.jpg"));
-      }else{
+      } else {
         profileImage.setImage(new Image("monk.jpg"));
       }
       dextertity.setText(dex);
@@ -131,18 +121,16 @@ public class GameController implements Initializable {
 
     Player warior = new Player("warior", "");
     Player monk = new Player("monk", "");
-//    warior.setDextertity(10);
-//    monk.setDextertity(50);
 
-    for(String ch: characterProperties){
+    for (String ch : characterProperties) {
 
       try (InputStream inputStream = new FileInputStream(ch)) {
         properties.load(inputStream);
         String dex = properties.getProperty("dextertity");
 
-        if(ch.contains("warior")) {
+        if (ch.contains("warior")) {
           warior.setDextertity(Integer.parseInt(dex));
-        }else{
+        } else {
           monk.setDextertity(Integer.parseInt(dex));
         }
 
@@ -151,28 +139,17 @@ public class GameController implements Initializable {
       }
     }
 
-
-
     chnageHeroComboBox.setValue(warior);
     selectCharacter = chnageHeroComboBox.getSelectionModel().getSelectedItem();
     chnageHeroComboBox.getItems().add(warior);
     chnageHeroComboBox.getItems().add(monk);
 
-    if (selectCharacter.getName().contains("monk")) {
-      path = PROPERTIES_FILE_PATH_MONK;
-    } else {
-      path = PROPERTIES_FILE_PATH_WARIOR;
-    }
+    // WARIOR PAGRINDINIS HEROJUS
 
-    try (InputStream inputStream = new FileInputStream(path)) {
+    try (InputStream inputStream = new FileInputStream(PROPERTIES_FILE_PATH_WARIOR)) {
       properties.load(inputStream);
       String dex = properties.getProperty("dextertity");
-
-      if(path.contains("warior")) {
-        profileImage.setImage(new Image("warior.jpg"));
-      }else{
-        profileImage.setImage(new Image("monk.jpg"));
-      }
+      profileImage.setImage(new Image("warior.jpg"));
       dextertity.setText(dex);
     } catch (IOException e) {
       e.printStackTrace();
